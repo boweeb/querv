@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.5
 # -*- coding: utf-8 -*-
 """querv
 
@@ -16,7 +16,7 @@ Options:
   --version                  Show version.
   -p PROP --property=PROP    The property to pivot on.
                              Currently implemented: "subnets", "images", "keys", and "VPCs"[default: subnets]
-  -i ID --id=ID              Identify the ec2 instance by "id" or "name" [default: id]
+  -i ID --id=ID              Identify the ec2 instance by "id" or "tag" [default: id]
   -m METHOD --method=METHOD  The method of retrieving the instances description [default: json_file]
   -f FILE --file=FILE        Use an input file [default: output.json]
   -a PROFILE --aws=PROFILE   The AWS profile to use for querying [default: default]
@@ -28,6 +28,7 @@ import os
 import json
 from docopt import docopt
 from typing import Tuple
+import boto3
 
 __version__ = "0.1.0"
 __author__ = "Jesse Butcher"
@@ -70,7 +71,6 @@ def get_data(args: dict) -> list:
         with open(in_file) as f:
             raw_data = json.load(f)
     elif method == 'live':
-        import boto3
         aws_prof = get_option('aws', args)
         boto3.setup_default_session(profile_name=aws_prof)
         client = boto3.client('ec2')
@@ -96,10 +96,21 @@ def get_summary(data: list, ident: str, query: str) -> Tuple[dict, list]:
     for obj in data:
         instance = obj['Instances'][0]  # 'Instances' is always a list with a length of 1
 
+        fallback = instance['InstanceId']
         if ident == 'id':
             ec2_id = instance['InstanceId']
         elif ident == 'tag':
-            ec2_id = instance['Tags']
+            results = []
+            for key in instance['Tags']:
+                if key['Key'] == 'Name':
+                    results.append(key['Value'])
+            if len(results) != 1:
+                ec2_id = fallback
+            else:
+                if results[0] == "":
+                    ec2_id = fallback
+                else:
+                    ec2_id = results[0]
         else:
             raise NotImplementedError("Non-implemented value for 'ident'")
         result = instance[query]
@@ -124,7 +135,7 @@ def pivot(query: str, summary_dict: dict, summary_list: list) -> str:
 
     """
     s = set(val for dic in summary_list for val in dic.values())
-    print('\nUnique {} values with InstanceId\'s:'.format(query))
+    # print('\nUnique {} values with InstanceId\'s:'.format(query))
     uniqs = {}
     for x in s:
         if x not in uniqs.keys():
