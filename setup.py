@@ -1,83 +1,57 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import re
-import sys
-from setuptools import setup
-from setuptools.command.test import test as TestCommand
 
 
-REQUIRES = [
-    'docopt',
-    'boto3',
-    'typing'
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+
+
+with open('README.rst') as readme_file:
+    readme = readme_file.read()
+
+with open('HISTORY.rst') as history_file:
+    history = history_file.read()
+
+requirements = [
+    # TODO: put package requirements here
 ]
 
-
-class PyTest(TestCommand):
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest
-        errcode = pytest.main(self.test_args)
-        sys.exit(errcode)
-
-
-def find_version(fname):
-    """Attempts to find the version number in the file names fname.
-    Raises RuntimeError if not found.
-    """
-    version = ''
-    with open(fname, 'r') as fp:
-        reg = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
-        for line in fp:
-            m = reg.match(line)
-            if m:
-                version = m.group(1)
-                break
-    if not version:
-        raise RuntimeError('Cannot find version information')
-    return version
-
-__version__ = find_version("querv.py")
-
-
-def read(fname):
-    with open(fname) as fp:
-        content = fp.read()
-    return content
+test_requirements = [
+    # TODO: put package test requirements here
+]
 
 setup(
     name='querv',
-    version="0.1.0",
-    description='Summarize aws-cli ec2-descriptions',
-    long_description=read("README.rst"),
-    author='Jesse Butcher',
+    version='0.1.0',
+    description="Summarize aws-cli ec2-descriptions",
+    long_description=readme + '\n\n' + history,
+    author="Jesse Butcher",
     author_email='boweeb@gmail.com',
     url='https://github.com/boweeb/querv',
-    install_requires=REQUIRES,
-    license=read("LICENSE"),
+    packages=[
+        'querv',
+    ],
+    package_dir={'querv':
+                 'querv'},
+    include_package_data=True,
+    install_requires=requirements,
+    license="ISCL",
     zip_safe=False,
     keywords='querv',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: ISC License (ISCL)',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ],
-    py_modules=["querv"],
-    entry_points={
-        'console_scripts': [
-            "querv = querv:main"
-        ]
-    },
-    tests_require=['pytest'],
-    cmdclass={'test': PyTest}
+    test_suite='tests',
+    tests_require=test_requirements
 )

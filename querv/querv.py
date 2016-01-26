@@ -22,7 +22,7 @@ Options:
   -a PROFILE --aws=PROFILE   The AWS profile to use for querying [default: default]
 """
 
-from __future__ import unicode_literals, print_function
+# from __future__ import unicode_literals, print_function
 
 import os
 import json
@@ -51,20 +51,22 @@ def get_option(opt: str, args: dict) -> str:
         return args['--{}'.format(opt)]
 
 
-def print_result_as_list(data):
-    print("InstanceId  |  {}".format(query))
-    print("------------+------------")
+# def print_result_as_list(data):
+#     print("InstanceId  |  {}".format(query))
+#     print("------------+------------")
 
 
 def get_data(args: dict) -> list:
     """
     Args:
-        args:
+        args (dict):
 
     Returns:
 
     """
     method = get_option('method', args)
+    """str: Method
+    """
 
     if method == 'json_file':
         in_file = get_option('file', args)
@@ -124,10 +126,9 @@ def get_summary(data: list, ident: str, query: str) -> Tuple[dict, list]:
     return summary_dict, summary_list
 
 
-def pivot(query: str, summary_dict: dict, summary_list: list) -> str:
+def pivot(summary_dict: dict, summary_list: list) -> str:
     """
     Args:
-        query:
         summary_dict:
         summary_list:
 
@@ -135,7 +136,6 @@ def pivot(query: str, summary_dict: dict, summary_list: list) -> str:
 
     """
     s = set(val for dic in summary_list for val in dic.values())
-    # print('\nUnique {} values with InstanceId\'s:'.format(query))
     uniqs = {}
     for x in s:
         if x not in uniqs.keys():
@@ -164,7 +164,7 @@ def main():
     data = get_data(args)
     summary_dict, summary_list = get_summary(data, ident, query)
 
-    print(pivot(query, summary_dict, summary_list))
+    print(pivot(summary_dict, summary_list))
 
 
 if __name__ == '__main__':
