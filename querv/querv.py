@@ -15,14 +15,14 @@ Options:
   -h --help                  Show this screen.
   --version                  Show version.
   -p PROP --property=PROP    The property to pivot on.
-                             Currently implemented: "subnets", "images", "keys", and "VPCs"[default: subnets]
+                             Currently implemented: "subnets", "images", "keys", "types" and "VPCs"[default: subnets]
   -i ID --id=ID              Identify the ec2 instance by "id" or "tag" [default: id]
   -m METHOD --method=METHOD  The method of retrieving the instances description [default: json_file]
   -f FILE --file=FILE        Use an input file [default: output.json]
   -a PROFILE --aws=PROFILE   The AWS profile to use for querying [default: default]
 """
 
-# from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals, print_function
 
 import os
 import json
@@ -30,9 +30,9 @@ from docopt import docopt
 from typing import Tuple
 import boto3
 
-__version__ = "0.1.0"
-__author__ = "Jesse Butcher"
-__license__ = "MIT"
+__author__ = 'Jesse Butcher'
+__email__ = 'boweeb@gmail.com'
+__version__ = '0.1.0'
 
 
 def get_option(opt: str, args: dict) -> str:
@@ -62,7 +62,10 @@ def get_data(args: dict) -> list:
         args (dict):
 
     Returns:
+        list: asdf
 
+    Raises:
+        ValueError: blah
     """
     method = get_option('method', args)
     """str: Method
@@ -85,13 +88,15 @@ def get_data(args: dict) -> list:
 
 
 def get_summary(data: list, ident: str, query: str) -> Tuple[dict, list]:
-    """
+    """Get summary
+
     Args:
-        data:
-        ident:
-        query:
+        data (list): input data
+        ident (str): y
+        query (str): z
 
     Returns:
+        Tuple[dict, list]: A tuple containing a dictionary and a list.
 
     """
     summary_dict = {}
@@ -148,13 +153,15 @@ def pivot(summary_dict: dict, summary_list: list) -> str:
 
 
 def main():
-    """Main entry point for the querv CLI."""
+    """Main entry point for the querv CLI.
+    """
     args = docopt(__doc__, version=__version__)
     # print(args)
 
     prop_dict = {'subnets': 'SubnetId',
                  'images': 'ImageId',
                  'keys': 'KeyName',
+                 'types': 'InstanceType',
                  'VPCs': 'VpcId',
                  }
     query_input = get_option('property', args)

@@ -15,7 +15,7 @@ Querv
 --
 
 .. image:: https://badge.fury.io/py/querv.png
-    :target: http://badge.fury.io/py/querv
+        :target: http://badge.fury.io/py/querv
 
 .. image:: https://travis-ci.org/boweeb/querv.png?branch=master
         :target: https://travis-ci.org/boweeb/querv
