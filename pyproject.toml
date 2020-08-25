@@ -1,0 +1,85 @@
+# ----------------------------------------------------------------------------------------------------------------------
+# PRIMARY SETTINGS
+[tool.poetry]
+name = "querv"
+version = "0.2.0"
+description = "Summarize aws-cli ec2-descriptions."
+authors = ["Jesse Butcher <boweeb@gmail.com>"]
+license = "ISC"
+readme = "README.rst"
+homepage = "https://github.com/boweeb/querv"
+repository = "ssh://git@github.com:boweeb/querv.git"
+keywords = ["querv", "ec2", "aws"]
+
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Operating System :: POSIX",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Utilities"
+]
+
+[tool.poetry.scripts]
+querv = 'querv.querv:main'
+
+#include = [
+#    "docs/**/*",
+#    "tests/**/*",
+#    "AUTHORS.rst",
+#    "CONTRIBUTING.rst",
+#    "HISTORY.rst"
+#]
+#    # Enable this if private dependencies are ever needed
+#    # [[tool.poetry.source]]
+#    # name = "foobar"
+#    # url = "https://pkg.example.net/repository/python/simple/"
+
+# ----------------------------------------------------------------------------------------------------------------------
+# DEPENDENCIES
+[tool.poetry.dependencies]
+python = "^3.8"
+docopt = "^0.6.2"
+boto3 = "^1.14.47"
+boto3_type_annotations = "^0.3.1"
+boto3-stubs = "^1.14.48"
+
+[tool.poetry.dev-dependencies]
+ipython = "*"
+coverage = "*"
+pytest = "*"
+pytest-runner = "*"
+pytest-cov = "*"
+pytest-bdd = "*"
+mypy = "*"
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# TOOLS
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+line_length = 120
+atomic = true
+lines_after_imports = 2
+lines_between_types = 0
+
+# Configure custom sections
+#   Reference: default for "sections" = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+known_aws = ["boto3", "botocore"]
+known_click = ["click"]
+sections = ["FUTURE", "STDLIB", "CLICK", "AWS", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+no_lines_before = ["AWS", "THIRDPARTY"]
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# FIN
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
