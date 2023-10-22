@@ -35,7 +35,6 @@ import json
 import os
 import sys
 from importlib.metadata import version
-from typing import Dict, List, Text, Tuple, Union
 
 import boto3
 from docopt import docopt
@@ -56,7 +55,7 @@ def save_snapshot(args):
     print('WARNING: You _might_ have to find output.json under ".venv/bin"')
 
 
-def get_option(opt: Text, args: Dict) -> Text:
+def get_option(opt: str, args: dict[str, str]) -> str:
     """
     Args:
         opt:
@@ -65,11 +64,8 @@ def get_option(opt: Text, args: Dict) -> Text:
     Returns:
 
     """
-    opt_env = "QUERV_{}".format(opt.upper())
-    if opt_env in os.environ.keys():
-        return os.environ[opt_env]
-    else:
-        return args["--{}".format(opt)]
+    opt_env = f"QUERV_{opt.upper()}"
+    return os.environ.get(opt_env, args[f"--{opt}"])
 
 
 # def print_result_as_list(data):
@@ -77,7 +73,10 @@ def get_option(opt: Text, args: Dict) -> Text:
 #     print("------------+------------")
 
 
-def get_data(args: Dict, trim: bool = True) -> Union[Dict, List]:
+def get_data(
+    args: dict[str, str],
+    trim: bool = True,
+) -> dict[str, str] | list[dict[str, str]]:
     """
     Args:
         args:
@@ -89,7 +88,7 @@ def get_data(args: Dict, trim: bool = True) -> Union[Dict, List]:
     Raises:
         ValueError: blah
     """
-    method: Text = get_option("method", args)
+    method: str = get_option("method", args)
 
     if method == "json_file":
         in_file = get_option("file", args)
@@ -104,14 +103,15 @@ def get_data(args: Dict, trim: bool = True) -> Union[Dict, List]:
     else:
         raise ValueError("Invalid get_data method")
 
-    if trim:
-        # All data is inside the "Reservations" key
-        return raw_data["Reservations"]
-    else:
-        return raw_data
+    # All data is inside the "Reservations" key
+    return raw_data["Reservations"] if trim else raw_data
 
 
-def get_summary(data: List, ident: Text, query: Text) -> Tuple[Dict, List]:
+def get_summary(
+    data: list[dict[str, str]],
+    ident: str,
+    query: str,
+) -> tuple[dict[str, str], list[dict[str, str]]]:
     """Get summary
 
     Args:
@@ -125,16 +125,14 @@ def get_summary(data: List, ident: Text, query: Text) -> Tuple[Dict, List]:
     """
     summary_dict = {}
     for obj in data:
-        instance = obj["Instances"][0]  # 'Instances' is always a list with a length of 1
+        # 'Instances' is always a list with a length of 1
+        instance: dict[str, str | dict[str, str]] = obj["Instances"][0]
 
         fallback = instance["InstanceId"]
         if ident == "id":
             ec2_id = instance["InstanceId"]
         elif ident == "tag":
-            results = []
-            for key in instance["Tags"]:
-                if key["Key"] == "Name":
-                    results.append(key["Value"])
+            results = [t["Value"] for t in instance["Tags"] if t["Key"] == "Name"]
             if len(results) != 1:
                 ec2_id = fallback
             else:
@@ -148,14 +146,12 @@ def get_summary(data: List, ident: Text, query: Text) -> Tuple[Dict, List]:
         # print('{}  |  {}'.format(ec2_id, result))
 
         summary_dict[ec2_id] = result
-    summary_list = []
-    for record in summary_dict.keys():
-        summary_list.append({record: summary_dict[record]})
+    summary_list = [{i: summary_dict[i]} for i in summary_dict]
 
     return summary_dict, summary_list
 
 
-def pivot(summary_dict: Dict, summary_list: List) -> Text:
+def pivot(summary_dict: dict[str, str], summary_list: list[dict[str, str]]) -> str:
     """
     Args:
         summary_dict:
@@ -164,21 +160,20 @@ def pivot(summary_dict: Dict, summary_list: List) -> Text:
     Returns:
 
     """
-    s = set(val for dic in summary_list for val in dic.values())
+    set_ = {val for dic in summary_list for val in dic.values()}
     unique_map = {}
-    for x in s:
-        if x not in unique_map.keys():
-            unique_map[x] = []
-        for k, v in summary_dict.items():
-            if x == v:
-                unique_map[x].append(k)
+    for item in set_:
+        if item not in unique_map.keys():
+            unique_map[item] = []
+        for key, value in summary_dict.items():
+            if item == value:
+                unique_map[item].append(key)
 
     return json.dumps(unique_map, indent=4, sort_keys=True)
 
 
 def main():
-    """Main entry point for the querv CLI.
-    """
+    """Main entry point for the querv CLI."""
     args = docopt(__doc__, version=version("querv"))
     # print(args)
 
