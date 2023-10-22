@@ -5,9 +5,6 @@ Querv
 .. image:: https://img.shields.io/pypi/v/querv.svg
         :target: https://pypi.python.org/pypi/querv
 
-.. image:: https://img.shields.io/travis/boweeb/querv.svg
-        :target: https://travis-ci.org/boweeb/querv
-
 .. image:: https://readthedocs.org/projects/querv/badge/?version=latest
         :target: https://readthedocs.org/projects/querv/?badge=latest
         :alt: Documentation Status
@@ -16,9 +13,6 @@ Querv
 
 .. image:: https://badge.fury.io/py/querv.png
         :target: http://badge.fury.io/py/querv
-
-.. image:: https://travis-ci.org/boweeb/querv.png?branch=master
-        :target: https://travis-ci.org/boweeb/querv
 
 .. image:: https://pypip.in/d/querv/badge.png
         :target: https://crate.io/packages/querv?version=latest
